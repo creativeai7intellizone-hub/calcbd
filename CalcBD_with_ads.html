@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CalcBD - স্মার্ট ক্যালকুলেটর টুলস | Smart Calculator Tools</title>
+<meta name="description" content="বাংলাদেশের সেরা অনলাইন ক্যালকুলেটর - EMI, BMI, Currency, Gold, Crypto এবং আরও অনেক কিছু">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --card: #1a2235;
+  --border: #2a3550;
+  --accent: #00e5ff;
+  --accent2: #ff6b35;
+  --accent3: #a855f7;
+  --green: #00d97e;
+  --red: #ff4757;
+  --text: #e8edf5;
+  --muted: #6b7a9a;
+  --gold: #ffd700;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Hind Siliguri', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NAVBAR */
+nav {
+  background: rgba(10,14,26,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -1px;
+}
+.logo span { color: var(--accent2); }
+.nav-badge {
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 50px 20px 30px;
+  background: radial-gradient(ellipse at top, #0d1f3c 0%, var(--bg) 70%);
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.hero h1 .highlight { color: var(--accent); }
+.hero p { color: var(--muted); font-size: 1rem; margin-bottom: 20px; }
+.stats {
+  display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-num { font-family: 'Space Mono', monospace; font-size: 1.4rem; color: var(--accent); font-weight: 700; }
+.stat-label { font-size: 0.75rem; color: var(--muted); }
+
+/* TOOL TABS */
+.tabs {
+  display: flex; gap: 8px; padding: 20px 15px 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 7px 16px;
+  border-radius: 25px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'Hind Siliguri', sans-serif;
+}
+.tab.active, .tab:hover {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* TOOL GRID */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 15px;
+}
+.tool-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 14px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.tool-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--card-color, var(--accent));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.tool-card:hover {
+  border-color: var(--card-color, var(--accent));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+.tool-card:hover::before { opacity: 1; }
+.tool-icon { font-size: 2rem; margin-bottom: 8px; }
+.tool-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.tool-name-bn { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+.tool-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 0.58rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 8px;
+  font-family: 'Space Mono', monospace;
+}
+.badge-hot { background: var(--accent2); color: white; }
+.badge-new { background: var(--green); color: var(--bg); }
+.badge-live { background: var(--red); color: white; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title { font-size: 1.2rem; font-weight: 700; }
+.modal-close {
+  background: var(--border);
+  border: none; color: var(--text);
+  width: 32px; height: 32px;
+  border-radius: 50%; cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* FORM ELEMENTS */
+.form-group { margin-bottom: 14px; }
+label { font-size: 0.85rem; color: var(--muted); display: block; margin-bottom: 5px; }
+input, select {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: 'Hind Siliguri', sans-serif;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+select option { background: var(--card); }
+.btn {
+  width: 100%;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Hind Siliguri', sans-serif;
+  transition: all 0.2s;
+  margin-top: 5px;
+}
+.btn:hover { opacity: 0.9; transform: scale(0.99); }
+.btn-secondary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  margin-top: 8px;
+}
+
+/* RESULT */
+.result-box {
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 14px;
+  display: none;
+}
+.result-box.show { display: block; }
+.result-main {
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.result-label { font-size: 0.8rem; color: var(--muted); }
+.result-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-top: 10px;
+}
+.result-item {
+  background: var(--bg);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+.result-item-val { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--text); font-weight: 700; }
+.result-item-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+/* LIVE RATE */
+.live-rate {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+}
+.live-dot {
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+.live-rate-val { font-family: 'Space Mono', monospace; color: var(--accent); font-weight: 700; }
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+  margin-top: 30px;
+}
+
+/* SECTION TITLE */
+.section-title {
+  padding: 15px 15px 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Space Mono', monospace;
+}
+
+.hidden { display: none !important; }
+</style>
+<script src="https://pl29298818.profitablecpmratenetwork.com/71/63/5b/71635b7a9327cf2be15eb0e2ff866709.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">Calc<span>BD</span></div>
+  <div class="nav-badge">20 TOOLS</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>বাংলাদেশের <span class="highlight">স্মার্ট</span> ক্যালকুলেটর</h1>
+  <p>Finance • Health • Crypto • Currency • Gold & More</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">20</div><div class="stat-label">Tools</div></div>
+    <div class="stat"><div class="stat-num">৳৳৳</div><div class="stat-label">Free Forever</div></div>
+    <div class="stat"><div class="stat-num">BD+EN</div><div class="stat-label">Bilingual</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="filterTools('all')">সব / All</div>
+  <div class="tab" onclick="filterTools('finance')">💰 Finance</div>
+  <div class="tab" onclick="filterTools('health')">❤️ Health</div>
+  <div class="tab" onclick="filterTools('crypto')">🪙 Crypto & Gold</div>
+  <div class="tab" onclick="filterTools('math')">📐 Math</div>
+  <div class="tab" onclick="filterTools('text')">🔤 Text</div>
+</div>
+
+<!-- BD TOOLS -->
+<div class="section-title">🇧🇩 বাংলাদেশ টপ টুলস</div>
+<div class="tools-grid" id="tools-grid">
+
+  <!-- 1. EMI -->
+  <div class="tool-card" style="--card-color:#00e5ff" data-cat="finance" onclick="openTool('emi')">
+    <span class="tool-badge badge-hot">HOT</span>
+    <div class="tool-icon">🏦</div>
+    <div class="tool-name">EMI Calculator</div>
+    <div class="tool-name-bn">ইএমআই ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 2. Age -->
+  <div class="tool-card" style="--card-color:#a855f7" data-cat="math" onclick="openTool('age')">
+    <span class="tool-badge badge-hot">HOT</span>
+    <div class="tool-icon">🎂</div>
+    <div class="tool-name">Age Calculator</div>
+    <div class="tool-name-bn">বয়স ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 3. BMI -->
+  <div class="tool-card" style="--card-color:#00d97e" data-cat="health" onclick="openTool('bmi')">
+    <span class="tool-badge badge-hot">HOT</span>
+    <div class="tool-icon">⚖️</div>
+    <div class="tool-name">BMI Calculator</div>
+    <div class="tool-name-bn">বিএমআই ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 4. Salary -->
+  <div class="tool-card" style="--card-color:#ff6b35" data-cat="finance" onclick="openTool('salary')">
+    <div class="tool-icon">💵</div>
+    <div class="tool-name">Salary Calculator</div>
+    <div class="tool-name-bn">বেতন ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 5. Pregnancy -->
+  <div class="tool-card" style="--card-color:#ff69b4" data-cat="health" onclick="openTool('pregnancy')">
+    <div class="tool-icon">🤰</div>
+    <div class="tool-name">Pregnancy Calculator</div>
+    <div class="tool-name-bn">গর্ভাবস্থা তারিখ</div>
+  </div>
+
+  <!-- 6. Calorie -->
+  <div class="tool-card" style="--card-color:#00d97e" data-cat="health" onclick="openTool('calorie')">
+    <div class="tool-icon">🥗</div>
+    <div class="tool-name">Calorie Calculator</div>
+    <div class="tool-name-bn">ক্যালোরি ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 7. Currency -->
+  <div class="tool-card" style="--card-color:#ffd700" data-cat="finance" onclick="openTool('currency')">
+    <span class="tool-badge badge-live">LIVE</span>
+    <div class="tool-icon">💱</div>
+    <div class="tool-name">Currency Converter</div>
+    <div class="tool-name-bn">মুদ্রা রূপান্তর</div>
+  </div>
+
+  <!-- 8. Gold -->
+  <div class="tool-card" style="--card-color:#ffd700" data-cat="crypto" onclick="openTool('gold')">
+    <span class="tool-badge badge-live">LIVE</span>
+    <div class="tool-icon">🥇</div>
+    <div class="tool-name">Gold Price BD</div>
+    <div class="tool-name-bn">সোনার দাম</div>
+  </div>
+
+  <!-- 9. Word Counter -->
+  <div class="tool-card" style="--card-color:#a855f7" data-cat="text" onclick="openTool('word')">
+    <div class="tool-icon">📝</div>
+    <div class="tool-name">Word Counter</div>
+    <div class="tool-name-bn">শব্দ গণনা</div>
+  </div>
+
+  <!-- 10. Percentage -->
+  <div class="tool-card" style="--card-color:#00e5ff" data-cat="math" onclick="openTool('percent')">
+    <div class="tool-icon">📊</div>
+    <div class="tool-name">Percentage Calc</div>
+    <div class="tool-name-bn">শতাংশ ক্যালকুলেটর</div>
+  </div>
+</div>
+
+<!-- INTERNATIONAL TOOLS -->
+<div class="section-title" style="margin-top:10px">🌍 ইন্টারন্যাশনাল হাই-ইনকাম টুলস</div>
+<div class="tools-grid">
+
+  <!-- 11. Mortgage -->
+  <div class="tool-card" style="--card-color:#00e5ff" data-cat="finance" onclick="openTool('mortgage')">
+    <span class="tool-badge badge-hot">$$$</span>
+    <div class="tool-icon">🏠</div>
+    <div class="tool-name">Mortgage Calculator</div>
+    <div class="tool-name-bn">মর্টগেজ হিসাব</div>
+  </div>
+
+  <!-- 12. Tax -->
+  <div class="tool-card" style="--card-color:#ff6b35" data-cat="finance" onclick="openTool('tax')">
+    <span class="tool-badge badge-hot">$$$</span>
+    <div class="tool-icon">🧾</div>
+    <div class="tool-name">Tax Calculator</div>
+    <div class="tool-name-bn">ট্যাক্স ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 13. Compound Interest -->
+  <div class="tool-card" style="--card-color:#00d97e" data-cat="finance" onclick="openTool('compound')">
+    <div class="tool-icon">📈</div>
+    <div class="tool-name">Compound Interest</div>
+    <div class="tool-name-bn">চক্রবৃদ্ধি সুদ</div>
+  </div>
+
+  <!-- 14. Retirement -->
+  <div class="tool-card" style="--card-color:#a855f7" data-cat="finance" onclick="openTool('retirement')">
+    <span class="tool-badge badge-hot">$$$</span>
+    <div class="tool-icon">👴</div>
+    <div class="tool-name">Retirement Calc</div>
+    <div class="tool-name-bn">অবসর পরিকল্পনা</div>
+  </div>
+
+  <!-- 15. Crypto -->
+  <div class="tool-card" style="--card-color:#f7931a" data-cat="crypto" onclick="openTool('crypto')">
+    <span class="tool-badge badge-live">LIVE</span>
+    <div class="tool-icon">₿</div>
+    <div class="tool-name">Crypto Converter</div>
+    <div class="tool-name-bn">ক্রিপ্টো কনভার্টার</div>
+  </div>
+
+  <!-- 16. Investment -->
+  <div class="tool-card" style="--card-color:#00e5ff" data-cat="finance" onclick="openTool('investment')">
+    <div class="tool-icon">💹</div>
+    <div class="tool-name">Investment Calc</div>
+    <div class="tool-name-bn">বিনিয়োগ হিসাব</div>
+  </div>
+
+  <!-- 17. Loan -->
+  <div class="tool-card" style="--card-color:#ff6b35" data-cat="finance" onclick="openTool('loan')">
+    <div class="tool-icon">🏧</div>
+    <div class="tool-name">Loan Calculator</div>
+    <div class="tool-name-bn">ঋণ ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 18. Body Fat -->
+  <div class="tool-card" style="--card-color:#00d97e" data-cat="health" onclick="openTool('bodyfat')">
+    <div class="tool-icon">💪</div>
+    <div class="tool-name">Body Fat Calc</div>
+    <div class="tool-name-bn">শরীরের চর্বি</div>
+  </div>
+
+  <!-- 19. Tip -->
+  <div class="tool-card" style="--card-color:#ffd700" data-cat="math" onclick="openTool('tip')">
+    <div class="tool-icon">🍽️</div>
+    <div class="tool-name">Tip Calculator</div>
+    <div class="tool-name-bn">টিপ ক্যালকুলেটর</div>
+  </div>
+
+  <!-- 20. Date Diff -->
+  <div class="tool-card" style="--card-color:#a855f7" data-cat="math" onclick="openTool('datediff')">
+    <div class="tool-icon">📅</div>
+    <div class="tool-name">Date Difference</div>
+    <div class="tool-name-bn">তারিখের পার্থক্য</div>
+  </div>
+
+</div>
+
+
+<!-- Adsterra 728x90 -->
+<div style="display:flex;justify-content:center;padding:10px 16px;overflow:hidden">
+<script>
+  atOptions = {
+    'key' : '4932ef7ddef5ec9e2cc80afe687e149f',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/4932ef7ddef5ec9e2cc80afe687e149f/invoke.js"></script>
+</div>
+
+<footer>
+  <div style="font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:8px">CalcBD</div>
+  বাংলাদেশের সেরা ফ্রি অনলাইন ক্যালকুলেটর টুলস<br>
+  <span style="color:var(--border)">© 2026 CalcBD — All Rights Reserved</span>
+</footer>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- EMI MODAL -->
+<div class="modal-overlay" id="modal-emi">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🏦 EMI Calculator | ইএমআই ক্যালকুলেটর</div>
+    <button class="modal-close" onclick="closeModal('emi')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>ঋণের পরিমাণ (Loan Amount) ৳</label>
+    <input type="number" id="emi-amount" placeholder="যেমন: 500000" value="500000">
+  </div>
+  <div class="form-group">
+    <label>বার্ষিক সুদের হার % (Annual Interest Rate)</label>
+    <input type="number" id="emi-rate" placeholder="যেমন: 9" value="9" step="0.1">
+  </div>
+  <div class="form-group">
+    <label>মেয়াদ - মাস (Tenure in Months)</label>
+    <input type="number" id="emi-months" placeholder="যেমন: 60" value="60">
+  </div>
+  <button class="btn" onclick="calcEMI()">🔢 হিসাব করো / Calculate</button>
+  <div class="result-box" id="result-emi">
+    <div class="result-label">মাসিক কিস্তি (Monthly EMI)</div>
+    <div class="result-main" id="emi-result">৳0</div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-item-val" id="emi-total">৳0</div>
+        <div class="result-item-label">মোট পরিশোধ</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="emi-interest">৳0</div>
+        <div class="result-item-label">মোট সুদ</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- AGE MODAL -->
+<div class="modal-overlay" id="modal-age">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🎂 Age Calculator | বয়স ক্যালকুলেটর</div>
+    <button class="modal-close" onclick="closeModal('age')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>জন্ম তারিখ (Date of Birth)</label>
+    <input type="date" id="age-dob">
+  </div>
+  <button class="btn" onclick="calcAge()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-age">
+    <div class="result-label">আপনার বয়স</div>
+    <div class="result-main" id="age-result">0 বছর</div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-item-val" id="age-months">0</div>
+        <div class="result-item-label">মাস</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="age-days">0</div>
+        <div class="result-item-label">দিন</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- BMI MODAL -->
+<div class="modal-overlay" id="modal-bmi">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">⚖️ BMI Calculator | বিএমআই</div>
+    <button class="modal-close" onclick="closeModal('bmi')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>ওজন (Weight) - কেজি</label>
+    <input type="number" id="bmi-weight" placeholder="যেমন: 65" value="65">
+  </div>
+  <div class="form-group">
+    <label>উচ্চতা (Height) - সেন্টিমিটার</label>
+    <input type="number" id="bmi-height" placeholder="যেমন: 170" value="170">
+  </div>
+  <button class="btn" onclick="calcBMI()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-bmi">
+    <div class="result-label">আপনার BMI</div>
+    <div class="result-main" id="bmi-result">0</div>
+    <div id="bmi-status" style="font-size:1rem;margin-top:5px"></div>
+    <div style="margin-top:12px;font-size:0.8rem;color:var(--muted)">
+      BMI &lt;18.5 = কম ওজন | 18.5-24.9 = স্বাভাবিক | 25-29.9 = অতিরিক্ত | 30+ = স্থূলতা
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SALARY MODAL -->
+<div class="modal-overlay" id="modal-salary">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">💵 Salary Calculator | বেতন</div>
+    <button class="modal-close" onclick="closeModal('salary')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>মোট বেতন (Gross Salary) ৳</label>
+    <input type="number" id="sal-gross" placeholder="যেমন: 30000" value="30000">
+  </div>
+  <div class="form-group">
+    <label>আয়কর % (Income Tax)</label>
+    <input type="number" id="sal-tax" placeholder="যেমন: 10" value="10" step="0.5">
+  </div>
+  <div class="form-group">
+    <label>অন্যান্য কাটা ৳ (Other Deductions)</label>
+    <input type="number" id="sal-other" placeholder="যেমন: 1000" value="1000">
+  </div>
+  <button class="btn" onclick="calcSalary()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-salary">
+    <div class="result-label">হাতে পাবেন (Net Salary)</div>
+    <div class="result-main" id="sal-result">৳0</div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-item-val" id="sal-tax-amt">৳0</div>
+        <div class="result-item-label">আয়কর কাটা</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="sal-annual">৳0</div>
+        <div class="result-item-label">বার্ষিক আয়</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PREGNANCY MODAL -->
+<div class="modal-overlay" id="modal-pregnancy">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🤰 Pregnancy Due Date</div>
+    <button class="modal-close" onclick="closeModal('pregnancy')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>শেষ মাসিকের তারিখ (Last Period Date)</label>
+    <input type="date" id="preg-lmp">
+  </div>
+  <button class="btn" onclick="calcPregnancy()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-pregnancy">
+    <div class="result-label">সম্ভাব্য প্রসব তারিখ (Due Date)</div>
+    <div class="result-main" id="preg-result" style="font-size:1.3rem">-</div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-item-val" id="preg-weeks">0</div>
+        <div class="result-item-label">সপ্তাহ হয়েছে</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="preg-remain">0</div>
+        <div class="result-item-label">দিন বাকি</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CALORIE MODAL -->
+<div class="modal-overlay" id="modal-calorie">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🥗 Calorie Calculator</div>
+    <button class="modal-close" onclick="closeModal('calorie')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>লিঙ্গ (Gender)</label>
+    <select id="cal-gender">
+      <option value="male">পুরুষ (Male)</option>
+      <option value="female">মহিলা (Female)</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>বয়স (Age)</label>
+    <input type="number" id="cal-age" value="25">
+  </div>
+  <div class="form-group">
+    <label>ওজন (Weight) কেজি</label>
+    <input type="number" id="cal-weight" value="65">
+  </div>
+  <div class="form-group">
+    <label>উচ্চতা (Height) সেমি</label>
+    <input type="number" id="cal-height" value="170">
+  </div>
+  <div class="form-group">
+    <label>কার্যকলাপ (Activity)</label>
+    <select id="cal-activity">
+      <option value="1.2">বসে থাকা (Sedentary)</option>
+      <option value="1.375">হালকা সক্রিয় (Light Active)</option>
+      <option value="1.55" selected>মাঝারি সক্রিয় (Moderate)</option>
+      <option value="1.725">বেশি সক্রিয় (Very Active)</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcCalorie()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-calorie">
+    <div class="result-label">দৈনিক ক্যালোরি প্রয়োজন</div>
+    <div class="result-main" id="cal-result">0 kcal</div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-item-val" id="cal-lose">0</div>
+        <div class="result-item-label">ওজন কমাতে</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="cal-gain">0</div>
+        <div class="result-item-label">ওজন বাড়াতে</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CURRENCY MODAL -->
+<div class="modal-overlay" id="modal-currency">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">💱 Currency Converter | মুদ্রা</div>
+    <button class="modal-close" onclick="closeModal('currency')">✕</button>
+  </div>
+  <div class="live-rate" id="currency-live-rate">
+    <div class="live-dot"></div>
+    <span>Live Rate Loading...</span>
+  </div>
+  <div class="form-group">
+    <label>পরিমাণ (Amount)</label>
+    <input type="number" id="cur-amount" value="100">
+  </div>
+  <div class="form-group">
+    <label>থেকে (From)</label>
+    <select id="cur-from">
+      <option value="USD">USD 🇺🇸</option>
+      <option value="BDT" selected>BDT 🇧🇩</option>
+      <option value="EUR">EUR 🇪🇺</option>
+      <option value="GBP">GBP 🇬🇧</option>
+      <option value="SAR">SAR 🇸🇦</option>
+      <option value="AED">AED 🇦🇪</option>
+      <option value="MYR">MYR 🇲🇾</option>
+      <option value="SGD">SGD 🇸🇬</option>
+      <option value="INR">INR 🇮🇳</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>তে (To)</label>
+    <select id="cur-to">
+      <option value="USD" selected>USD 🇺🇸</option>
+      <option value="BDT">BDT 🇧🇩</option>
+      <option value="EUR">EUR 🇪🇺</option>
+      <option value="GBP">GBP 🇬🇧</option>
+      <option value="SAR">SAR 🇸🇦</option>
+      <option value="AED">AED 🇦🇪</option>
+      <option value="MYR">MYR 🇲🇾</option>
+      <option value="SGD">SGD 🇸🇬</option>
+      <option value="INR">INR 🇮🇳</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcCurrency()">💱 কনভার্ট করো</button>
+  <div class="result-box" id="result-currency">
+    <div class="result-label">রূপান্তরিত মূল্য</div>
+    <div class="result-main" id="cur-result">0</div>
+    <div id="cur-rate-info" style="font-size:0.8rem;color:var(--muted);margin-top:5px"></div>
+  </div>
+</div>
+</div>
+
+<!-- GOLD MODAL -->
+<div class="modal-overlay" id="modal-gold">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🥇 Gold Price Bangladesh</div>
+    <button class="modal-close" onclick="closeModal('gold')">✕</button>
+  </div>
+  <div class="live-rate" id="gold-live-display">
+    <div class="live-dot"></div>
+    <span>Live Gold Price Loading...</span>
+  </div>
+  <div class="form-group">
+    <label>সোনার পরিমাণ - ভরি (Quantity in Vori)</label>
+    <input type="number" id="gold-amount" value="1" step="0.1">
+  </div>
+  <div class="form-group">
+    <label>ক্যারেট (Karat)</label>
+    <select id="gold-karat">
+      <option value="24">24 ক্যারেট (Pure Gold)</option>
+      <option value="22" selected>22 ক্যারেট (সর্বোচ্চ প্রচলিত)</option>
+      <option value="21">21 ক্যারেট</option>
+      <option value="18">18 ক্যারেট</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcGold()">💛 মূল্য দেখো</button>
+  <div class="result-box" id="result-gold">
+    <div class="result-label">আনুমানিক মূল্য (BDT)</div>
+    <div class="result-main" id="gold-result">৳0</div>
+    <div id="gold-info" style="font-size:0.78rem;color:var(--muted);margin-top:5px"></div>
+  </div>
+</div>
+</div>
+
+<!-- WORD COUNTER MODAL -->
+<div class="modal-overlay" id="modal-word">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">📝 Word Counter | শব্দ গণনা</div>
+    <button class="modal-close" onclick="closeModal('word')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>টেক্সট লিখুন বা পেস্ট করুন</label>
+    <textarea id="word-text" style="width:100%;height:130px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;font-size:0.95rem;font-family:'Hind Siliguri',sans-serif;resize:vertical" placeholder="এখানে লিখুন..." oninput="calcWord()"></textarea>
+  </div>
+  <div class="result-box show" id="result-word">
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="word-count">0</div><div class="result-item-label">শব্দ (Words)</div></div>
+      <div class="result-item"><div class="result-item-val" id="char-count">0</div><div class="result-item-label">অক্ষর (Chars)</div></div>
+      <div class="result-item"><div class="result-item-val" id="sent-count">0</div><div class="result-item-label">বাক্য (Sentences)</div></div>
+      <div class="result-item"><div class="result-item-val" id="para-count">0</div><div class="result-item-label">অনুচ্ছেদ (Paragraphs)</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PERCENTAGE MODAL -->
+<div class="modal-overlay" id="modal-percent">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">📊 Percentage Calculator</div>
+    <button class="modal-close" onclick="closeModal('percent')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>সংখ্যা (Number)</label>
+    <input type="number" id="pct-num" value="200">
+  </div>
+  <div class="form-group">
+    <label>শতাংশ % (Percentage)</label>
+    <input type="number" id="pct-pct" value="15">
+  </div>
+  <button class="btn" onclick="calcPercent()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-percent">
+    <div class="result-label">ফলাফল (Result)</div>
+    <div class="result-main" id="pct-result">0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="pct-after-add">0</div><div class="result-item-label">যোগ করলে</div></div>
+      <div class="result-item"><div class="result-item-val" id="pct-after-sub">0</div><div class="result-item-label">বিয়োগ করলে</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MORTGAGE MODAL -->
+<div class="modal-overlay" id="modal-mortgage">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🏠 Mortgage Calculator</div>
+    <button class="modal-close" onclick="closeModal('mortgage')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Home Price ($)</label>
+    <input type="number" id="mort-price" value="300000">
+  </div>
+  <div class="form-group">
+    <label>Down Payment ($)</label>
+    <input type="number" id="mort-down" value="60000">
+  </div>
+  <div class="form-group">
+    <label>Annual Interest Rate (%)</label>
+    <input type="number" id="mort-rate" value="6.5" step="0.1">
+  </div>
+  <div class="form-group">
+    <label>Loan Term (Years)</label>
+    <select id="mort-years">
+      <option value="30" selected>30 Years</option>
+      <option value="20">20 Years</option>
+      <option value="15">15 Years</option>
+      <option value="10">10 Years</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcMortgage()">🔢 Calculate</button>
+  <div class="result-box" id="result-mortgage">
+    <div class="result-label">Monthly Payment</div>
+    <div class="result-main" id="mort-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="mort-total">$0</div><div class="result-item-label">Total Payment</div></div>
+      <div class="result-item"><div class="result-item-val" id="mort-interest">$0</div><div class="result-item-label">Total Interest</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAX MODAL -->
+<div class="modal-overlay" id="modal-tax">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🧾 Tax Calculator (USA)</div>
+    <button class="modal-close" onclick="closeModal('tax')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Annual Income ($)</label>
+    <input type="number" id="tax-income" value="75000">
+  </div>
+  <div class="form-group">
+    <label>Filing Status</label>
+    <select id="tax-status">
+      <option value="single">Single</option>
+      <option value="married">Married Filing Jointly</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcTax()">🔢 Calculate Tax</button>
+  <div class="result-box" id="result-tax">
+    <div class="result-label">Estimated Federal Tax</div>
+    <div class="result-main" id="tax-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="tax-effective">0%</div><div class="result-item-label">Effective Rate</div></div>
+      <div class="result-item"><div class="result-item-val" id="tax-takehome">$0</div><div class="result-item-label">Take Home</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- COMPOUND INTEREST MODAL -->
+<div class="modal-overlay" id="modal-compound">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">📈 Compound Interest</div>
+    <button class="modal-close" onclick="closeModal('compound')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Principal Amount ($)</label>
+    <input type="number" id="ci-principal" value="10000">
+  </div>
+  <div class="form-group">
+    <label>Annual Rate (%)</label>
+    <input type="number" id="ci-rate" value="8" step="0.1">
+  </div>
+  <div class="form-group">
+    <label>Time (Years)</label>
+    <input type="number" id="ci-years" value="10">
+  </div>
+  <div class="form-group">
+    <label>Compound Frequency</label>
+    <select id="ci-freq">
+      <option value="1">Annually</option>
+      <option value="4">Quarterly</option>
+      <option value="12" selected>Monthly</option>
+      <option value="365">Daily</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcCompound()">🔢 Calculate</button>
+  <div class="result-box" id="result-compound">
+    <div class="result-label">Final Amount</div>
+    <div class="result-main" id="ci-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="ci-interest">$0</div><div class="result-item-label">Interest Earned</div></div>
+      <div class="result-item"><div class="result-item-val" id="ci-growth">0%</div><div class="result-item-label">Total Growth</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- RETIREMENT MODAL -->
+<div class="modal-overlay" id="modal-retirement">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">👴 Retirement Calculator</div>
+    <button class="modal-close" onclick="closeModal('retirement')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Current Age</label>
+    <input type="number" id="ret-age" value="30">
+  </div>
+  <div class="form-group">
+    <label>Retirement Age</label>
+    <input type="number" id="ret-retire" value="65">
+  </div>
+  <div class="form-group">
+    <label>Current Savings ($)</label>
+    <input type="number" id="ret-savings" value="10000">
+  </div>
+  <div class="form-group">
+    <label>Monthly Contribution ($)</label>
+    <input type="number" id="ret-monthly" value="500">
+  </div>
+  <div class="form-group">
+    <label>Expected Return (%)</label>
+    <input type="number" id="ret-return" value="7" step="0.5">
+  </div>
+  <button class="btn" onclick="calcRetirement()">🔢 Calculate</button>
+  <div class="result-box" id="result-retirement">
+    <div class="result-label">Retirement Savings at 65</div>
+    <div class="result-main" id="ret-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="ret-invested">$0</div><div class="result-item-label">Total Invested</div></div>
+      <div class="result-item"><div class="result-item-val" id="ret-earned">$0</div><div class="result-item-label">Interest Earned</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CRYPTO MODAL -->
+<div class="modal-overlay" id="modal-crypto">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">₿ Crypto Converter | ক্রিপ্টো</div>
+    <button class="modal-close" onclick="closeModal('crypto')">✕</button>
+  </div>
+  <div class="live-rate" id="crypto-live-rate">
+    <div class="live-dot"></div>
+    <span>Loading crypto prices...</span>
+  </div>
+  <div class="form-group">
+    <label>Cryptocurrency</label>
+    <select id="crypto-coin" onchange="loadCryptoPrice()">
+      <option value="bitcoin">Bitcoin (BTC)</option>
+      <option value="ethereum">Ethereum (ETH)</option>
+      <option value="tether">Tether (USDT)</option>
+      <option value="binancecoin">BNB</option>
+      <option value="ripple">XRP</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Amount (Coins)</label>
+    <input type="number" id="crypto-amount" value="1" step="0.001">
+  </div>
+  <div class="form-group">
+    <label>Convert to</label>
+    <select id="crypto-currency">
+      <option value="usd">USD ($)</option>
+      <option value="bdt">BDT (৳)</option>
+      <option value="eur">EUR (€)</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcCrypto()">🔢 Convert</button>
+  <div class="result-box" id="result-crypto">
+    <div class="result-label">Value</div>
+    <div class="result-main" id="crypto-result">$0</div>
+    <div id="crypto-price-info" style="font-size:0.8rem;color:var(--muted);margin-top:5px"></div>
+  </div>
+</div>
+</div>
+
+<!-- INVESTMENT MODAL -->
+<div class="modal-overlay" id="modal-investment">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">💹 Investment Calculator</div>
+    <button class="modal-close" onclick="closeModal('investment')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Initial Investment ($)</label>
+    <input type="number" id="inv-initial" value="5000">
+  </div>
+  <div class="form-group">
+    <label>Monthly Addition ($)</label>
+    <input type="number" id="inv-monthly" value="200">
+  </div>
+  <div class="form-group">
+    <label>Annual Return (%)</label>
+    <input type="number" id="inv-rate" value="10" step="0.5">
+  </div>
+  <div class="form-group">
+    <label>Investment Period (Years)</label>
+    <input type="number" id="inv-years" value="15">
+  </div>
+  <button class="btn" onclick="calcInvestment()">🔢 Calculate</button>
+  <div class="result-box" id="result-investment">
+    <div class="result-label">Total Value</div>
+    <div class="result-main" id="inv-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="inv-contributed">$0</div><div class="result-item-label">Contributed</div></div>
+      <div class="result-item"><div class="result-item-val" id="inv-returns">$0</div><div class="result-item-label">Returns</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- LOAN MODAL -->
+<div class="modal-overlay" id="modal-loan">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🏧 Loan Calculator</div>
+    <button class="modal-close" onclick="closeModal('loan')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Loan Amount ($)</label>
+    <input type="number" id="loan-amount" value="20000">
+  </div>
+  <div class="form-group">
+    <label>Annual Interest Rate (%)</label>
+    <input type="number" id="loan-rate" value="7" step="0.1">
+  </div>
+  <div class="form-group">
+    <label>Loan Term (Months)</label>
+    <input type="number" id="loan-months" value="48">
+  </div>
+  <button class="btn" onclick="calcLoan()">🔢 Calculate</button>
+  <div class="result-box" id="result-loan">
+    <div class="result-label">Monthly Payment</div>
+    <div class="result-main" id="loan-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="loan-total">$0</div><div class="result-item-label">Total Payment</div></div>
+      <div class="result-item"><div class="result-item-val" id="loan-interest">$0</div><div class="result-item-label">Total Interest</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- BODY FAT MODAL -->
+<div class="modal-overlay" id="modal-bodyfat">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">💪 Body Fat Calculator</div>
+    <button class="modal-close" onclick="closeModal('bodyfat')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Gender</label>
+    <select id="bf-gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Age</label>
+    <input type="number" id="bf-age" value="25">
+  </div>
+  <div class="form-group">
+    <label>Weight (kg)</label>
+    <input type="number" id="bf-weight" value="70">
+  </div>
+  <div class="form-group">
+    <label>Height (cm)</label>
+    <input type="number" id="bf-height" value="175">
+  </div>
+  <button class="btn" onclick="calcBodyFat()">🔢 Calculate</button>
+  <div class="result-box" id="result-bodyfat">
+    <div class="result-label">Estimated Body Fat</div>
+    <div class="result-main" id="bf-result">0%</div>
+    <div id="bf-category" style="margin-top:8px;font-size:1rem"></div>
+  </div>
+</div>
+</div>
+
+<!-- TIP MODAL -->
+<div class="modal-overlay" id="modal-tip">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">🍽️ Tip Calculator</div>
+    <button class="modal-close" onclick="closeModal('tip')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Bill Amount ($)</label>
+    <input type="number" id="tip-bill" value="50">
+  </div>
+  <div class="form-group">
+    <label>Tip Percentage (%)</label>
+    <input type="number" id="tip-pct" value="18">
+  </div>
+  <div class="form-group">
+    <label>Number of People</label>
+    <input type="number" id="tip-people" value="2">
+  </div>
+  <button class="btn" onclick="calcTip()">🔢 Calculate</button>
+  <div class="result-box" id="result-tip">
+    <div class="result-label">Tip Amount</div>
+    <div class="result-main" id="tip-result">$0</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="tip-total">$0</div><div class="result-item-label">Total Bill</div></div>
+      <div class="result-item"><div class="result-item-val" id="tip-per-person">$0</div><div class="result-item-label">Per Person</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- DATE DIFF MODAL -->
+<div class="modal-overlay" id="modal-datediff">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">📅 Date Difference | তারিখের পার্থক্য</div>
+    <button class="modal-close" onclick="closeModal('datediff')">✕</button>
+  </div>
+  <div class="form-group">
+    <label>শুরুর তারিখ (Start Date)</label>
+    <input type="date" id="dd-start">
+  </div>
+  <div class="form-group">
+    <label>শেষের তারিখ (End Date)</label>
+    <input type="date" id="dd-end">
+  </div>
+  <button class="btn" onclick="calcDateDiff()">🔢 হিসাব করো</button>
+  <div class="result-box" id="result-datediff">
+    <div class="result-label">পার্থক্য (Difference)</div>
+    <div class="result-main" id="dd-result">0 দিন</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="dd-weeks">0</div><div class="result-item-label">সপ্তাহ</div></div>
+      <div class="result-item"><div class="result-item-val" id="dd-months">0</div><div class="result-item-label">মাস</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ============ API KEYS ============
+const EXCHANGE_API_KEY = '2c4206cdf4541fb7040bc264';
+const GOLD_API_KEY = 'goldapi-ed5c6e025b23c6fa941e0f898c9b45cc-io';
+const COINGECKO_API_KEY = 'CG-WjJj3C4YVEFVdhtZ7uhMWHSn';
+const USD_TO_BDT = 110;
+
+// ============ MODAL ============
+function openTool(id) {
+  document.getElementById('modal-'+id).classList.add('open');
+  if(id==='currency') loadCurrencyRate();
+  if(id==='gold') loadGoldPrice();
+  if(id==='crypto') loadCryptoPrice();
+  if(id==='age') { document.getElementById('age-dob').max = new Date().toISOString().split('T')[0]; }
+  if(id==='pregnancy') { document.getElementById('preg-lmp').max = new Date().toISOString().split('T')[0]; }
+  let today = new Date().toISOString().split('T')[0];
+  if(id==='datediff') { document.getElementById('dd-end').value = today; }
+}
+function closeModal(id) {
+  document.getElementById('modal-'+id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+
+// ============ FILTER ============
+function filterTools(cat) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.tool-card').forEach(c => {
+    c.style.display = (cat==='all' || c.dataset.cat===cat) ? 'block' : 'none';
+  });
+}
+
+// ============ HELPERS ============
+function fmt(n, decimals=0) {
+  return Number(n).toLocaleString('en', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+}
+function showResult(id) {
+  document.getElementById('result-'+id).classList.add('show');
+}
+
+// ============ 1. EMI ============
+function calcEMI() {
+  const P = parseFloat(document.getElementById('emi-amount').value);
+  const r = parseFloat(document.getElementById('emi-rate').value) / 12 / 100;
+  const n = parseFloat(document.getElementById('emi-months').value);
+  const emi = P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total = emi * n;
+  document.getElementById('emi-result').textContent = '৳' + fmt(emi, 0);
+  document.getElementById('emi-total').textContent = '৳' + fmt(total, 0);
+  document.getElementById('emi-interest').textContent = '৳' + fmt(total-P, 0);
+  showResult('emi');
+}
+
+// ============ 2. AGE ============
+function calcAge() {
+  const dob = new Date(document.getElementById('age-dob').value);
+  const today = new Date();
+  let years = today.getFullYear() - dob.getFullYear();
+  let months = today.getMonth() - dob.getMonth();
+  let days = today.getDate() - dob.getDate();
+  if(days < 0) { months--; days += 30; }
+  if(months < 0) { years--; months += 12; }
+  document.getElementById('age-result').textContent = years + ' বছর';
+  document.getElementById('age-months').textContent = months + ' মাস';
+  document.getElementById('age-days').textContent = days + ' দিন';
+  showResult('age');
+}
+
+// ============ 3. BMI ============
+function calcBMI() {
+  const w = parseFloat(document.getElementById('bmi-weight').value);
+  const h = parseFloat(document.getElementById('bmi-height').value) / 100;
+  const bmi = (w / (h*h)).toFixed(1);
+  let status = '', color = '';
+  if(bmi < 18.5) { status = '⚠️ কম ওজন (Underweight)'; color = '#ff6b35'; }
+  else if(bmi < 25) { status = '✅ স্বাভাবিক (Normal)'; color = '#00d97e'; }
+  else if(bmi < 30) { status = '⚠️ অতিরিক্ত ওজন (Overweight)'; color = '#ffd700'; }
+  else { status = '🔴 স্থূলতা (Obese)'; color = '#ff4757'; }
+  document.getElementById('bmi-result').textContent = bmi;
+  document.getElementById('bmi-status').innerHTML = `<span style="color:${color}">${status}</span>`;
+  showResult('bmi');
+}
+
+// ============ 4. SALARY ============
+function calcSalary() {
+  const gross = parseFloat(document.getElementById('sal-gross').value);
+  const taxPct = parseFloat(document.getElementById('sal-tax').value)/100;
+  const other = parseFloat(document.getElementById('sal-other').value);
+  const taxAmt = gross * taxPct;
+  const net = gross - taxAmt - other;
+  document.getElementById('sal-result').textContent = '৳' + fmt(net, 0);
+  document.getElementById('sal-tax-amt').textContent = '৳' + fmt(taxAmt, 0);
+  document.getElementById('sal-annual').textContent = '৳' + fmt(net*12, 0);
+  showResult('salary');
+}
+
+// ============ 5. PREGNANCY ============
+function calcPregnancy() {
+  const lmp = new Date(document.getElementById('preg-lmp').value);
+  const due = new Date(lmp);
+  due.setDate(due.getDate() + 280);
+  const today = new Date();
+  const weeksPregnant = Math.floor((today - lmp) / (7*24*60*60*1000));
+  const daysLeft = Math.max(0, Math.floor((due - today) / (24*60*60*1000)));
+  document.getElementById('preg-result').textContent = due.toLocaleDateString('bn-BD', {year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('preg-weeks').textContent = weeksPregnant;
+  document.getElementById('preg-remain').textContent = daysLeft;
+  showResult('pregnancy');
+}
+
+// ============ 6. CALORIE ============
+function calcCalorie() {
+  const gender = document.getElementById('cal-gender').value;
+  const age = parseFloat(document.getElementById('cal-age').value);
+  const w = parseFloat(document.getElementById('cal-weight').value);
+  const h = parseFloat(document.getElementById('cal-height').value);
+  const activity = parseFloat(document.getElementById('cal-activity').value);
+  let bmr = gender==='male' ? 88.362 + 13.397*w + 4.799*h - 5.677*age : 447.593 + 9.247*w + 3.098*h - 4.330*age;
+  const tdee = Math.round(bmr * activity);
+  document.getElementById('cal-result').textContent = tdee + ' kcal';
+  document.getElementById('cal-lose').textContent = (tdee-500) + ' kcal';
+  document.getElementById('cal-gain').textContent = (tdee+500) + ' kcal';
+  showResult('calorie');
+}
+
+// ============ 7. CURRENCY (LIVE API) ============
+let liveRates = {};
+async function loadCurrencyRate() {
+  try {
+    const res = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/latest/USD`);
+    const data = await res.json();
+    if(data.result === 'success') {
+      liveRates = data.conversion_rates;
+      document.getElementById('currency-live-rate').innerHTML = `<div class="live-dot"></div> <span>1 USD = <span class="live-rate-val">৳${liveRates['BDT']?.toFixed(2)}</span> | Live Rate ✅</span>`;
+    }
+  } catch(e) {
+    document.getElementById('currency-live-rate').innerHTML = `<div class="live-dot" style="background:var(--muted)"></div><span>Offline mode</span>`;
+    liveRates = {USD:1,BDT:110,EUR:0.92,GBP:0.79,SAR:3.75,AED:3.67,MYR:4.7,SGD:1.34,INR:83};
+  }
+}
+function calcCurrency() {
+  if(!Object.keys(liveRates).length) { alert('দয়া করে একটু অপেক্ষা করুন...'); return; }
+  const amt = parseFloat(document.getElementById('cur-amount').value);
+  const from = document.getElementById('cur-from').value;
+  const to = document.getElementById('cur-to').value;
+  const inUSD = amt / liveRates[from];
+  const result = inUSD * liveRates[to];
+  document.getElementById('cur-result').textContent = fmt(result, 2) + ' ' + to;
+  document.getElementById('cur-rate-info').textContent = `1 ${from} = ${fmt(liveRates[to]/liveRates[from], 4)} ${to}`;
+  showResult('currency');
+}
+
+// ============ 8. GOLD (LIVE API) ============
+let goldPriceUSD = 0;
+async function loadGoldPrice() {
+  try {
+    const res = await fetch('https://www.goldapi.io/api/XAU/USD', {
+      headers: {'x-access-token': GOLD_API_KEY, 'Content-Type':'application/json'}
+    });
+    const data = await res.json();
+    goldPriceUSD = data.price_gram_24k;
+    document.getElementById('gold-live-display').innerHTML = `<div class="live-dot"></div><span>24K Gold: <span class="live-rate-val">$${goldPriceUSD?.toFixed(2)}/gram</span> ✅</span>`;
+  } catch(e) {
+    goldPriceUSD = 98;
+    document.getElementById('gold-live-display').innerHTML = `<div class="live-dot" style="background:var(--muted)"></div><span>Approx: $${goldPriceUSD}/gram</span>`;
+  }
+}
+function calcGold() {
+  const vori = parseFloat(document.getElementById('gold-amount').value);
+  const karat = parseInt(document.getElementById('gold-karat').value);
+  const gramsPerVori = 11.664;
+  const purity = karat / 24;
+  const pricePerGram = goldPriceUSD * purity;
+  const totalUSD = vori * gramsPerVori * pricePerGram;
+  const totalBDT = totalUSD * USD_TO_BDT;
+  document.getElementById('gold-result').textContent = '৳' + fmt(totalBDT, 0);
+  document.getElementById('gold-info').textContent = `≈ $${fmt(totalUSD,2)} | ${karat}K Gold | 1 ভরি = ${gramsPerVori}g`;
+  showResult('gold');
+}
+
+// ============ 9. WORD COUNTER ============
+function calcWord() {
+  const text = document.getElementById('word-text').value;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.length;
+  const sentences = text.split(/[।.!?]+/).filter(s=>s.trim()).length;
+  const paras = text.split(/\n+/).filter(p=>p.trim()).length;
+  document.getElementById('word-count').textContent = words;
+  document.getElementById('char-count').textContent = chars;
+  document.getElementById('sent-count').textContent = sentences;
+  document.getElementById('para-count').textContent = paras;
+}
+
+// ============ 10. PERCENTAGE ============
+function calcPercent() {
+  const num = parseFloat(document.getElementById('pct-num').value);
+  const pct = parseFloat(document.getElementById('pct-pct').value);
+  const result = (num * pct / 100);
+  document.getElementById('pct-result').textContent = fmt(result, 2);
+  document.getElementById('pct-after-add').textContent = fmt(num+result, 2);
+  document.getElementById('pct-after-sub').textContent = fmt(num-result, 2);
+  showResult('percent');
+}
+
+// ============ 11. MORTGAGE ============
+function calcMortgage() {
+  const price = parseFloat(document.getElementById('mort-price').value);
+  const down = parseFloat(document.getElementById('mort-down').value);
+  const P = price - down;
+  const r = parseFloat(document.getElementById('mort-rate').value) / 12 / 100;
+  const n = parseInt(document.getElementById('mort-years').value) * 12;
+  const monthly = P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total = monthly * n;
+  document.getElementById('mort-result').textContent = '$' + fmt(monthly, 0);
+  document.getElementById('mort-total').textContent = '$' + fmt(total, 0);
+  document.getElementById('mort-interest').textContent = '$' + fmt(total-P, 0);
+  showResult('mortgage');
+}
+
+// ============ 12. TAX (USA 2024) ============
+function calcTax() {
+  const income = parseFloat(document.getElementById('tax-income').value);
+  const status = document.getElementById('tax-status').value;
+  let brackets = status==='single' ?
+    [[11600,0.10],[47150,0.12],[100525,0.22],[191950,0.24],[243725,0.32],[609350,0.35],[Infinity,0.37]] :
+    [[23200,0.10],[94300,0.12],[201050,0.22],[383900,0.24],[487450,0.32],[731200,0.35],[Infinity,0.37]];
+  let tax = 0, prev = 0;
+  for(let [limit,rate] of brackets) {
+    if(income <= limit) { tax += (income-prev)*rate; break; }
+    tax += (limit-prev)*rate; prev=limit;
+  }
+  const effectiveRate = (tax/income*100).toFixed(1);
+  document.getElementById('tax-result').textContent = '$' + fmt(tax, 0);
+  document.getElementById('tax-effective').textContent = effectiveRate + '%';
+  document.getElementById('tax-takehome').textContent = '$' + fmt(income-tax, 0);
+  showResult('tax');
+}
+
+// ============ 13. COMPOUND INTEREST ============
+function calcCompound() {
+  const P = parseFloat(document.getElementById('ci-principal').value);
+  const r = parseFloat(document.getElementById('ci-rate').value)/100;
+  const t = parseFloat(document.getElementById('ci-years').value);
+  const n = parseInt(document.getElementById('ci-freq').value);
+  const A = P * Math.pow(1 + r/n, n*t);
+  const growth = ((A-P)/P*100).toFixed(1);
+  document.getElementById('ci-result').textContent = '$' + fmt(A, 2);
+  document.getElementById('ci-interest').textContent = '$' + fmt(A-P, 2);
+  document.getElementById('ci-growth').textContent = growth + '%';
+  showResult('compound');
+}
+
+// ============ 14. RETIREMENT ============
+function calcRetirement() {
+  const currentAge = parseFloat(document.getElementById('ret-age').value);
+  const retireAge = parseFloat(document.getElementById('ret-retire').value);
+  const savings = parseFloat(document.getElementById('ret-savings').value);
+  const monthly = parseFloat(document.getElementById('ret-monthly').value);
+  const rate = parseFloat(document.getElementById('ret-return').value)/100/12;
+  const months = (retireAge-currentAge)*12;
+  const futureCurrentSavings = savings * Math.pow(1+rate, months);
+  let futureContributions = 0;
+  for(let i=1; i<=months; i++) futureContributions += monthly * Math.pow(1+rate, months-i);
+  const total = futureCurrentSavings + futureContributions;
+  const invested = savings + monthly*months;
+  document.getElementById('ret-result').textContent = '$' + fmt(total, 0);
+  document.getElementById('ret-invested').textContent = '$' + fmt(invested, 0);
+  document.getElementById('ret-earned').textContent = '$' + fmt(total-invested, 0);
+  showResult('retirement');
+}
+
+// ============ 15. CRYPTO (LIVE) ============
+let cryptoPrices = {};
+async function loadCryptoPrice() {
+  const coin = document.getElementById('crypto-coin')?.value || 'bitcoin';
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd,bdt,eur&x_cg_demo_api_key=${COINGECKO_API_KEY}`);
+    const data = await res.json();
+    cryptoPrices = data[coin] || {};
+    document.getElementById('crypto-live-rate').innerHTML = `<div class="live-dot"></div><span>${coin.toUpperCase()}: <span class="live-rate-val">$${fmt(cryptoPrices.usd||0,2)}</span> ✅</span>`;
+  } catch(e) {
+    cryptoPrices = {usd:65000,bdt:7150000,eur:59000};
+    document.getElementById('crypto-live-rate').innerHTML = `<div class="live-dot" style="background:var(--muted)"></div><span>Approx prices</span>`;
+  }
+}
+function calcCrypto() {
+  const amount = parseFloat(document.getElementById('crypto-amount').value);
+  const currency = document.getElementById('crypto-currency').value;
+  const price = cryptoPrices[currency] || cryptoPrices['usd'] || 0;
+  const symbols = {usd:'$',bdt:'৳',eur:'€'};
+  const result = amount * price;
+  document.getElementById('crypto-result').textContent = symbols[currency] + fmt(result, 2);
+  document.getElementById('crypto-price-info').textContent = `1 coin = ${symbols[currency]}${fmt(price,2)}`;
+  showResult('crypto');
+}
+
+// ============ 16. INVESTMENT ============
+function calcInvestment() {
+  const initial = parseFloat(document.getElementById('inv-initial').value);
+  const monthly = parseFloat(document.getElementById('inv-monthly').value);
+  const rate = parseFloat(document.getElementById('inv-rate').value)/100/12;
+  const months = parseInt(document.getElementById('inv-years').value)*12;
+  const futureInitial = initial * Math.pow(1+rate, months);
+  let futureMonthly = 0;
+  for(let i=1; i<=months; i++) futureMonthly += monthly * Math.pow(1+rate, months-i);
+  const total = futureInitial + futureMonthly;
+  const contributed = initial + monthly*months;
+  document.getElementById('inv-result').textContent = '$' + fmt(total, 0);
+  document.getElementById('inv-contributed').textContent = '$' + fmt(contributed, 0);
+  document.getElementById('inv-returns').textContent = '$' + fmt(total-contributed, 0);
+  showResult('investment');
+}
+
+// ============ 17. LOAN ============
+function calcLoan() {
+  const P = parseFloat(document.getElementById('loan-amount').value);
+  const r = parseFloat(document.getElementById('loan-rate').value)/12/100;
+  const n = parseInt(document.getElementById('loan-months').value);
+  const monthly = P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total = monthly*n;
+  document.getElementById('loan-result').textContent = '$' + fmt(monthly, 2);
+  document.getElementById('loan-total').textContent = '$' + fmt(total, 0);
+  document.getElementById('loan-interest').textContent = '$' + fmt(total-P, 0);
+  showResult('loan');
+}
+
+// ============ 18. BODY FAT ============
+function calcBodyFat() {
+  const gender = document.getElementById('bf-gender').value;
+  const age = parseFloat(document.getElementById('bf-age').value);
+  const w = parseFloat(document.getElementById('bf-weight').value);
+  const h = parseFloat(document.getElementById('bf-height').value);
+  const bmi = w/((h/100)**2);
+  let bf = gender==='male' ? (1.20*bmi + 0.23*age - 16.2) : (1.20*bmi + 0.23*age - 5.4);
+  bf = Math.max(0, Math.min(60, bf)).toFixed(1);
+  let cat='', color='';
+  if(gender==='male') {
+    if(bf<6) { cat='⚡ Essential Fat'; color='#ff6b35'; }
+    else if(bf<14) { cat='🏋️ Athletic'; color='#00e5ff'; }
+    else if(bf<18) { cat='✅ Fitness'; color='#00d97e'; }
+    else if(bf<25) { cat='✅ Average'; color='#ffd700'; }
+    else { cat='⚠️ Obese'; color='#ff4757'; }
+  } else {
+    if(bf<14) { cat='⚡ Essential Fat'; color='#ff6b35'; }
+    else if(bf<21) { cat='🏋️ Athletic'; color='#00e5ff'; }
+    else if(bf<25) { cat='✅ Fitness'; color='#00d97e'; }
+    else if(bf<32) { cat='✅ Average'; color='#ffd700'; }
+    else { cat='⚠️ Obese'; color='#ff4757'; }
+  }
+  document.getElementById('bf-result').textContent = bf + '%';
+  document.getElementById('bf-category').innerHTML = `<span style="color:${color}">${cat}</span>`;
+  showResult('bodyfat');
+}
+
+// ============ 19. TIP ============
+function calcTip() {
+  const bill = parseFloat(document.getElementById('tip-bill').value);
+  const pct = parseFloat(document.getElementById('tip-pct').value);
+  const people = parseFloat(document.getElementById('tip-people').value);
+  const tip = bill * pct / 100;
+  const total = bill + tip;
+  document.getElementById('tip-result').textContent = '$' + fmt(tip, 2);
+  document.getElementById('tip-total').textContent = '$' + fmt(total, 2);
+  document.getElementById('tip-per-person').textContent = '$' + fmt(total/people, 2);
+  showResult('tip');
+}
+
+// ============ 20. DATE DIFF ============
+function calcDateDiff() {
+  const start = new Date(document.getElementById('dd-start').value);
+  const end = new Date(document.getElementById('dd-end').value);
+  const diffMs = Math.abs(end - start);
+  const days = Math.floor(diffMs / (24*60*60*1000));
+  document.getElementById('dd-result').textContent = days + ' দিন';
+  document.getElementById('dd-weeks').textContent = Math.floor(days/7);
+  document.getElementById('dd-months').textContent = Math.floor(days/30);
+  showResult('datediff');
+}
+</script>
+</body>
+</html>
